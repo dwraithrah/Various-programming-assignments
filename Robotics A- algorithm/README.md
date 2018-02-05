@@ -10,4 +10,7 @@ This document explains how the program works and what the output means.  To summ
 ### PrintedPath.png:
 This is a screenshot of the output created by the program. 
 
+### SourceCode.txt:
+This is my code, readable using a text editor or notepad.  It was put together after reading various tutorials on the A* algorithm using C++.  It was created, tested and run in Microsoft Visual Studio 2015. 
+
 
