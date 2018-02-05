@@ -14,6 +14,8 @@ This contains all of the sql queries created for this project. They are readable
 ### Video Game Stored Procedures folder:
 This contains all of the sql queries so that they can be individually downloaded and viewed without downloading all of them via the .zip folder. 
 
-##How to view this content:
+## How to view this content:
 
 The .docx files need to be viewed in Microsoft word to be able to see the documents and the diagrams.  They can be viewed using Microsoft Viewer as well.  Notepad can be used to view the text but the images might not be viewed.  
+
+The SQL code can be looked at using notepad. They were created using Microsoft SQL server 2016.  They were tested creating a test database on Microsoft SQL server using the relational model detailed in the Final Database Report.  Sadly the test database was lost due to data corruption.  
