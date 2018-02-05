@@ -1,0 +1,286 @@
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+//global variable double array for map.  Will double as parent square.
+int map[10][10];
+//global variable double array for where we've been
+float closedList[10][10];
+//global variable double array for where we haven't been
+float openList[10][10];
+//global double arrays that serve as parent node list
+int parentListX[10][10];
+int parentListY[10][10];
+//array to hold g values
+//global variables for current node we're looking at
+int xCurrent; int yCurrent;
+//values to hold temporary coordinates
+int tempX; int tempY;
+//holds temporary value
+float tempValue;
+//array of values
+float valueArray[10][10];
+
+
+//function to draw map
+void mapDraw() {
+	//display map to check it
+	for (int i2 = 0; i2 < 10; i2++) {
+		for (int j2 = 0; j2 < 10; j2++)
+		{
+			cout << map[i2][j2] << " ";
+		}
+		cout << endl;
+	}
+}//end mapDraw function
+
+
+float heuristicCalculation(int xCurrent, int yCurrent) {
+
+	float f = 0;  //f will be the total value
+	float g = 0;  //this is the distance from current node to start node
+	float h = 0;  //h is the calculated distance from current node to the start point.
+
+	//calculating g using distance formula
+	g = sqrt(((0- xCurrent) * (0 - xCurrent)) + ((0 - yCurrent)* (0 - yCurrent)));
+	//calculate f
+
+	//calculating h using the distance formula.
+	h = sqrt(((9 - xCurrent) * (9 - xCurrent)) + ((9 - yCurrent)* (9 - yCurrent)));
+		//calculate f
+	f = g + h;
+
+	//return heuristic
+	return f;
+}//end heuristicCalculation
+
+//simple function that will place a 0 in open node if it's not in closed list, obstacle, or already has an open value
+void nodeCheck(int xCheck, int yCheck) {
+	bool checksOut = false;
+	float value;
+	//if it's an obstacle on the map return false
+	if (map[xCheck][yCheck] == 7) {
+		checksOut = false;
+	}
+	else if ((xCheck == 0) && (yCheck == 0))
+		checksOut = false;
+	//if it's off the grid
+	else if ((xCheck < 0) || (yCheck < 0))
+		checksOut = false;
+	else if ((yCheck > 9) || (xCheck > 9))
+		checksOut = false;
+	else if ((closedList[xCheck][yCheck] > 0))
+		checksOut = false;
+	else
+		checksOut = true;
+
+	//if it checks out true, calculate heuristic and place on open list
+	if (checksOut){
+		value = heuristicCalculation(xCheck, yCheck);
+		//if already in open list, but value is less than what's there, reset value and parent
+		if ((openList[xCheck][yCheck] > 0) && (openList[xCheck][yCheck] > value)) {
+			openList[xCheck][yCheck] = value;
+			//reset parent
+			parentListX[xCheck][yCheck] = xCurrent;
+			parentListY[xCheck][yCheck] = yCurrent;
+			valueArray[xCheck][yCheck] = value;
+			cout << "Value at " << xCheck << " , " << yCheck << " is: " << valueArray[xCheck][yCheck] << endl;
+		}
+		//else if there's nothing in the open list
+		else if (openList[xCheck][yCheck] == 0) {
+			//point to current node as parrent
+			parentListX[xCheck][yCheck] = xCurrent;
+			parentListY[xCheck][yCheck] = yCurrent;
+			openList[xCheck][yCheck] = value;
+			valueArray[xCheck][yCheck] = value;
+			cout << "Value at " << xCheck << " , " << yCheck << " is: " << valueArray[xCheck][yCheck] << endl;
+		}
+		else
+			valueArray[xCheck][yCheck] = openList[xCheck][yCheck];
+	}
+}//end nodeCheck function
+
+//will check all adjacent nodes to current nodes to see if it needs to be added to the open list
+void openListCheck() {
+	int xCheck; int yCheck;
+	//check top left corner
+	xCheck = xCurrent - 1;  yCheck = yCurrent - 1;
+	nodeCheck(xCheck, yCheck);
+
+	//check left node
+	xCheck = xCurrent; yCheck = yCurrent - 1;
+	nodeCheck(xCheck, yCheck);
+
+	//check bottom left corner
+	xCheck = xCurrent + 1; yCheck = yCurrent - 1;
+	nodeCheck(xCheck, yCheck);
+	
+	//check bottom node
+	xCheck = xCurrent + 1; yCheck = yCurrent;
+	nodeCheck(xCheck, yCheck);
+
+	//check bottom right node
+	xCheck = xCurrent + 1; yCheck = yCurrent + 1;
+	nodeCheck(xCheck, yCheck);
+
+	//check right node
+	xCheck = xCurrent; yCheck = yCurrent + 1;
+	nodeCheck(xCheck, yCheck);
+
+	//check top right node
+	xCheck = xCurrent - 1; yCheck = yCurrent + 1;
+	nodeCheck(xCheck, yCheck);
+
+	//check top node
+	xCheck = xCurrent - 1; yCheck = yCurrent;
+	nodeCheck(xCheck, yCheck);
+
+	//now that values have been determined, check to see where to go
+	for (int i2 = 0; i2 < 10; i2++) {
+		for (int j2 = 0; j2 < 10; j2++)
+		{
+			//this will set tempvalue to the first value it comes to. This will be the comparison for the other values
+			if ((tempValue == 0) && (valueArray[i2][j2] > 0)) {
+				tempValue = valueArray[i2][j2];
+				//will set temp coordinates to this location
+				tempX = i2; tempY = j2;
+				cout << "TempValue: " << tempValue << "  tempX: " << tempX << " tempY: " << tempY << endl;
+			}
+			//if temp value is currently greater than the other node, replace with the other node
+			else if ((tempValue) > (valueArray[i2][j2]) && (valueArray[i2][j2] > 0)) {
+				tempValue = valueArray[i2][j2];
+				tempX = i2; tempY = j2;
+				cout << "TempValue: " << tempValue << "  tempX: " << tempX << " tempY: " << tempY << endl;
+			}
+		}
+	}
+
+	//now that tempvalue has been established and tempx tempy has been established. clear out value array
+	for (int iterator = 0; iterator < 10; iterator++)
+		for (int iterator2 = 0; iterator2 < 10; iterator2++)
+			valueArray[iterator][iterator2] = 0;
+		
+}//end openListCheck function
+
+
+void pathFind(int xStart, int yStart, int xEnd, int yEnd) {
+	//put our starting point in the open list
+	closedList[xStart][yStart] = 0;
+	//set the current node 
+	xCurrent = 0; yCurrent = 0;
+	//loop that will do the pathfinding
+	//while we haven't reached the end
+	while (map[xCurrent][yCurrent] != 6) {
+		//set tempvalue to current value
+		tempValue = 0;
+		//reset temp values
+		tempX = 0;  tempY = 0;
+		//check the nodes, calculates heuristic and puts them in open list
+		openListCheck();
+		//place current node in closed list
+		closedList[xCurrent][yCurrent] = openList[xCurrent][yCurrent];
+		//checks the values of all of the surrounding nodes, picks a place to be.
+		//currentX and currentY will be reset to the new value 
+		//valueCheck();
+		//set new current
+		xCurrent = tempX;  yCurrent = tempY;
+		//checking loop
+		cout <<"current position: "<< xCurrent << " , " << yCurrent << endl;
+	}
+		/*cout << endl;
+		for (int i2 = 0; i2 < 10; i2++) {
+			for (int j2 = 0; j2 < 10; j2++)
+			{
+				cout << openList[i2][j2] << " ";
+			}
+			cout << endl;
+		}
+
+		tempValue = 0;  tempX = 0; tempY = 0;
+		cout << "The temp value is before starting next run, should be 0, is: " << tempValue << endl;
+		openListCheck();
+		closedList[xCurrent][yCurrent] = openList[xCurrent][yCurrent];
+		xCurrent = tempX; yCurrent = tempY;
+		cout << "current position: " << xCurrent << " , " << yCurrent << endl;*/
+
+	
+
+
+
+	//print open list
+
+	//cout << endl;
+	//display map to check it
+	/*for (int i2 = 0; i2 < 10; i2++) {
+			for (int j2 = 0; j2 < 10; j2++)
+			{
+				cout << openList[i2][j2] << " ";
+			}
+			cout << endl;
+		}
+
+		cout << endl << xCurrent << " , " << yCurrent<<endl;*/
+
+}//end pathFind function
+
+
+//main function.  
+int main() {
+	//create the map for the path
+	for (int i = 0; i < 10; i++) {
+		for (int j = 0; j < 10; j++) {
+
+			if ((i == 2) && (j == 7))
+				map[i][j] = 7;
+			else if ((i == 3) && (j == 6))
+				map[i][j] = 7;
+			else if ((i == 3) && (j == 7))
+				map[i][j] = 7;
+			else if ((i == 4) && ((j == 2) || (j == 4) || (j == 5) || (j == 6)))
+				map[i][j] = 7;
+			else if ((i == 5) && ((j == 2) ||(j == 3) || (j == 4)))
+				map[i][j] = 7;
+			else
+				map[i][j] = 0;
+		}
+	}
+	//display map to check it
+	mapDraw();
+
+	//now that map is made, will create a starting and ending point
+	int xStart = 0; int yStart = 0;
+	int xEnd = 9; int yEnd = 9;
+
+	//redraw map with start and end
+	map[xStart][yStart] = 5;
+	map[xEnd][yEnd] = 6;
+	cout << endl << endl;
+	mapDraw();
+
+	//call the A* pathfind algorithm
+	pathFind(xStart, yStart, xEnd, yEnd);
+
+	cout << "calculating path"<<endl;
+
+	//replace values in map to print out the path
+	tempX = 9; tempY = 9;
+	xCurrent = 9; yCurrent = 9;
+	bool pathDone = false;
+	while (!pathDone) {
+		map[xCurrent][yCurrent] = 3;
+		tempX = parentListX[xCurrent][yCurrent];
+		tempY = parentListY[xCurrent][yCurrent];
+		xCurrent = tempX;
+		yCurrent = tempY;
+		if ((xCurrent == 0) && (yCurrent == 0))
+			pathDone = true;
+	}
+
+	cout << "printing out path" << endl;
+
+	//print out path
+	mapDraw();
+	
+	system("pause");
+}
